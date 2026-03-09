@@ -255,8 +255,29 @@ function App() {
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
                 />
                 <Tooltip
-                  formatter={(value) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, undefined]}
+                  formatter={(value, name) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, name]}
                   labelFormatter={(label) => `יום ${label}`}
+                  contentStyle={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                    borderRadius: '12px',
+                    border: '1px solid var(--panel-border)',
+                    boxShadow: '0 12px 20px -5px rgba(0, 0, 0, 0.15)',
+                    textAlign: 'right',
+                    padding: '8px 12px'
+                  }}
+                  itemStyle={{
+                    direction: 'rtl',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    padding: '2px 0'
+                  }}
+                  labelStyle={{
+                    fontWeight: '700',
+                    color: 'var(--text-active)',
+                    marginBottom: '8px',
+                    borderBottom: '1px solid var(--panel-border)',
+                    paddingBottom: '4px'
+                  }}
                 />
                 <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: '20px' }} />
                 <ReferenceLine y={0} stroke="var(--text-muted)" strokeDasharray="3 3" />
