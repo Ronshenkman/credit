@@ -7,16 +7,21 @@ import { Activity, Calendar, BarChart3, Clock, Target } from 'lucide-react';
 
 const renderCustomBarLabel = ({ x, y, width, height, value }) => {
   const isNegative = value < 0;
-  // Make sure it doesn't crash if value is null
   if (value === undefined || value === null) return null;
+
+  // To ensure the text is right below the bar without overlapping
+  // We use the chart element height. y is the top of the rectangle, height is its length extending downwards.
+  const yPos = isNegative ? y + height + 15 : y - 10;
+
   return (
     <text
       x={x + width / 2}
-      y={isNegative ? y + height + 10 : y - 10}
+      y={yPos}
       fill="var(--text-muted)"
       textAnchor="middle"
       dominantBaseline={isNegative ? "hanging" : "auto"}
       fontSize={14}
+      fontWeight="500"
     >
       {`${value > 0 ? '+' : ''}${parseFloat(value).toFixed(0)}%`}
     </text>
@@ -135,7 +140,9 @@ function App() {
     ops.forEach(op => {
       if (data[op.name] && data[op.name][category]) {
         const catData = data[op.name][category].data || [];
-        const validDays = catData.filter(item => item.day >= 0 && item.day < avgDays);
+
+        // We only want to average the first X days of the event, excluding Day 0 (the anchor day where everything is 0%)
+        const validDays = catData.filter(item => item.day > 0 && item.day <= avgDays);
 
         let sum = 0;
         let count = 0;
