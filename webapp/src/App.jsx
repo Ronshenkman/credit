@@ -12,17 +12,18 @@ const renderCustomBarLabel = ({ x, y, width, height, value }) => {
   // y + height is the tip of a negative bar or the baseline of a positive bar.
   // y is the top of a positive bar or the baseline of a negative bar.
   // We want to be "outside" the active end.
-  const yPos = isNegative ? y + height + 15 : y - 10;
+  // Increase offset to be very clearly outside
+  const yPos = isNegative ? y + height + 25 : y - 15;
 
   return (
     <text
       x={x + width / 2}
       y={yPos}
-      fill="var(--text-muted)"
+      fill="var(--text-active)"
       textAnchor="middle"
       dominantBaseline={isNegative ? "hanging" : "auto"}
       fontSize={13}
-      fontWeight="600"
+      fontWeight="700"
     >
       {`${value > 0 ? '+' : ''}${parseFloat(value).toFixed(0)}%`}
     </text>
@@ -287,7 +288,7 @@ function App() {
 
           <div className="chart-container" dir="ltr" style={{ marginTop: '2rem', height: '400px' }}>
             <h3 style={{ textAlign: 'center', margin: '0 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
-              ממוצע שינוי ב-{avgDays} הימים הראשונים (ביחס ל-{basePeriod === 'change_14' ? '14 ימים' : '28 ימים'} שלפני המלחמה)
+              ממוצע שינוי ב-{avgDays} הימים הראשונים (מעודכן)
             </h3>
             <ResponsiveContainer width="100%" height="85%">
               <BarChart
