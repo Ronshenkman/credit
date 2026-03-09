@@ -40,8 +40,8 @@ function getAverage(arr) {
  * @returns {Object} Processed JSON Data Map
  */
 export async function processExcelData(buffer) {
-    // Parse excel file
-    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    // Parse excel file - DO NOT use cellDates to avoid timezone issues
+    const workbook = XLSX.read(buffer, { type: 'array' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
 
@@ -55,17 +55,19 @@ export async function processExcelData(buffer) {
             obj[colName] = row[index];
         });
         return obj;
-    }).filter(row => row['Date'] instanceof Date || typeof row['Date'] === 'number');
+    }).filter(row => typeof row['Date'] === 'number');
 
-    // Convert dates and normalize to midnight
+    // Convert Excel serial numbers to LOCAL Date objects
+    // Excel epoch: Jan 0, 1900 (serial 1 = Jan 1, 1900)
+    // We use XLSX's built-in SSF utility to parse correctly, then create LOCAL dates
     dataList.forEach(row => {
-        if (typeof row['Date'] === 'number') {
-            // Excel date serial number to JS Date
-            row['Date'] = new Date(Math.round((row['Date'] - 25569) * 86400 * 1000));
-        }
-        if (row['Date'] instanceof Date) {
-            row['Date'].setHours(0, 0, 0, 0);
-        }
+        const serial = row['Date'];
+        // Convert serial to y/m/d using the standard Excel epoch
+        // Excel serial 1 = Jan 1, 1900. The "Lotus bug" means serial 60 = Feb 29, 1900 (which doesn't exist)
+        // Standard formula: create a UTC date from epoch, then extract y/m/d for local date
+        const utcDate = new Date((serial - 25569) * 86400 * 1000);
+        // Create a LOCAL date with the UTC date's components to avoid timezone shift
+        row['Date'] = new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate(), 0, 0, 0, 0);
     });
 
     // Sort by date ascending
