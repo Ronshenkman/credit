@@ -46,7 +46,7 @@ app.get('/api/data', async (req, res) => {
         }
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, error: "Database error" });
+        res.status(500).json({ success: false, error: err.message || "Database error" });
     }
 });
 
@@ -68,7 +68,7 @@ app.post('/api/data', async (req, res) => {
         res.json({ success: true, lastUploadDate: now.rows[0].uploaded_at });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ success: false, error: "Database error" });
+        res.status(500).json({ success: false, error: err.message || "Database error" });
     }
 });
 
