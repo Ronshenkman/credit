@@ -1,0 +1,41 @@
+.file-uploader {
+    width: 100%;
+    margin-bottom: 2rem;
+    background: var(--panel-bg);
+    border: 2px dashed var(--panel-border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.file-uploader:hover {
+    border-color: var(--accent-color);
+    background: rgba(88, 166, 255, 0.05);
+}
+
+.uploader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+.upload-icon {
+    color: var(--accent-color);
+}
+
+.uploader-content h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-active);
+}
+
+.uploader-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}

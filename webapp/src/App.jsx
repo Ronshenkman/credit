@@ -3,6 +3,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { Activity, Calendar, BarChart3, Clock } from 'lucide-react';
+import FileUploader from './components/FileUploader';
+import { processExcelData } from './utils/processData';
 import './index.css';
 
 function App() {
@@ -14,21 +16,20 @@ function App() {
   const [basePeriod, setBasePeriod] = useState("change_14");
   const [maxDays, setMaxDays] = useState("100");
 
-  useEffect(() => {
-    fetch('/data.json')
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to load data');
-        return res.json();
-      })
-      .then(jsonData => {
-        setData(jsonData);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
+  // Start with no data - wait for user to upload
+  const handleFileLoaded = async (buffer) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const parsedData = await processExcelData(buffer);
+      setData(parsedData);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("שגיאה בפענוח הקובץ. ודא שזהו קובץ האקסל התקין.");
+      setLoading(false);
+    }
+  };
 
   const categories = useMemo(() => {
     if (!data || !data["חרבות ברזל"]) return [];
@@ -66,7 +67,7 @@ function App() {
     return ticks;
   }, [maxDays]);
 
-  if (loading) return <div className="app-container"><div className="loading">Loading data...</div></div>;
+  // if (loading) return <div className="app-container"><div className="loading">Loading data...</div></div>;
   if (error) return <div className="app-container"><div className="error">Error: {error}</div></div>;
 
   return (
@@ -76,90 +77,98 @@ function App() {
         <p>השוואת הפגיעה הכלכלית של מבצעים צבאיים ביחס לתקופת הבסיס.</p>
       </header>
 
-      <div className="controls-panel">
-        <div className="control-group">
-          <label><BarChart3 size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> קטגוריה</label>
-          <select value={category} onChange={e => setCategory(e.target.value)}>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat.replace(/_/g, ' ')}</option>
-            ))}
-          </select>
-        </div>
+      <FileUploader onFileLoaded={handleFileLoaded} onError={setError} />
 
-        <div className="control-group">
-          <label><Calendar size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> תקופת בסיס</label>
-          <select value={basePeriod} onChange={e => setBasePeriod(e.target.value)}>
-            <option value="change_14">ממוצע 14 ימים</option>
-            <option value="change_28">ממוצע 28 ימים</option>
-          </select>
-        </div>
+      {loading && <div className="loading">מעבד נתונים...</div>}
 
-        <div className="control-group">
-          <label><Clock size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> חלון זמן</label>
-          <select value={maxDays} onChange={e => setMaxDays(e.target.value)}>
-            <option value="30">30 ימים</option>
-            <option value="60">60 ימים</option>
-            <option value="100">100 ימים</option>
-            <option value="180">חצי שנה (180 ימים)</option>
-            <option value="max">מקסימום זמין</option>
-          </select>
-        </div>
-      </div>
+      {data && !loading && (
+        <>
+          <div className="controls-panel">
+            <div className="control-group">
+              <label><BarChart3 size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> קטגוריה</label>
+              <select value={category} onChange={e => setCategory(e.target.value)}>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat.replace(/_/g, ' ')}</option>
+                ))}
+              </select>
+            </div>
 
-      <div className="chart-container" dir="ltr">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
-            <XAxis
-              type="number"
-              dataKey="day"
-              domain={[0, 'dataMax']}
-              ticks={xTicks}
-              stroke="var(--text-muted)"
-              tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-              label={{ value: 'ימים מפרוץ המלחמה/המבצע', position: 'insideBottom', offset: -10, fill: 'var(--text-muted)', fontSize: 14 }}
-            />
-            <YAxis
-              stroke="var(--text-muted)"
-              tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-              tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
-            />
-            <Tooltip
-              formatter={(value) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, undefined]}
-              labelFormatter={(label) => `יום ${label}`}
-            />
-            <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: '20px' }} />
-            <ReferenceLine y={0} stroke="var(--text-muted)" strokeDasharray="3 3" />
-            <Line
-              type="linear"
-              dataKey="חרבות ברזל"
-              stroke="var(--line-iron)"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="linear"
-              dataKey="עם כלביא"
-              stroke="var(--line-rising)"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="linear"
-              dataKey="שאגת הארי"
-              stroke="var(--line-roaring)"
-              strokeWidth={3}
-              dot={false}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+            <div className="control-group">
+              <label><Calendar size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> תקופת בסיס</label>
+              <select value={basePeriod} onChange={e => setBasePeriod(e.target.value)}>
+                <option value="change_14">ממוצע 14 ימים</option>
+                <option value="change_28">ממוצע 28 ימים</option>
+              </select>
+            </div>
+
+            <div className="control-group">
+              <label><Clock size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> חלון זמן</label>
+              <select value={maxDays} onChange={e => setMaxDays(e.target.value)}>
+                <option value="30">30 ימים</option>
+                <option value="60">60 ימים</option>
+                <option value="100">100 ימים</option>
+                <option value="180">חצי שנה (180 ימים)</option>
+                <option value="max">מקסימום זמין</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="chart-container" dir="ltr">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={chartData}
+                margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
+                <XAxis
+                  type="number"
+                  dataKey="day"
+                  domain={[0, 'dataMax']}
+                  ticks={xTicks}
+                  stroke="var(--text-muted)"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  label={{ value: 'ימים מפרוץ המלחמה/המבצע', position: 'insideBottom', offset: -10, fill: 'var(--text-muted)', fontSize: 14 }}
+                />
+                <YAxis
+                  stroke="var(--text-muted)"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, undefined]}
+                  labelFormatter={(label) => `יום ${label}`}
+                />
+                <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: '20px' }} />
+                <ReferenceLine y={0} stroke="var(--text-muted)" strokeDasharray="3 3" />
+                <Line
+                  type="linear"
+                  dataKey="חרבות ברזל"
+                  stroke="var(--line-iron)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="linear"
+                  dataKey="עם כלביא"
+                  stroke="var(--line-rising)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="linear"
+                  dataKey="שאגת הארי"
+                  stroke="var(--line-roaring)"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
     </div>
   );
 }
