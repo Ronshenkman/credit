@@ -271,8 +271,8 @@ function App() {
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                   domain={[
-                    (dataMin) => Math.floor((Math.min(0, dataMin) - 5) / 10) * 10,
-                    (dataMax) => Math.ceil((Math.max(0, dataMax) + 5) / 10) * 10
+                    (dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10,
+                    (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10
                   ]}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                 />
@@ -385,8 +385,8 @@ function App() {
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                   domain={[
-                    (dataMin) => Math.floor((Math.min(0, dataMin) - 5) / 10) * 10,
-                    (dataMax) => Math.ceil((Math.max(0, dataMax) + 5) / 10) * 10
+                    (dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10,
+                    (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10
                   ]}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                 />
@@ -415,13 +415,13 @@ function App() {
             <h3 style={{ textAlign: 'center', margin: '2rem 0 1.5rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
-            <div style={{ minWidth: '2000px', height: '500px' }}>
+            <div style={{ minWidth: '1500px', height: '500px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={comparisonChartData}
                   margin={{ top: 40, right: 30, left: 30, bottom: 80 }}
                   barGap={8}
-                  barCategoryGap="30%"
+                  barCategoryGap="20%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
                   <XAxis
@@ -437,8 +437,8 @@ function App() {
                     stroke="var(--text-muted)"
                     tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
                     domain={[
-                      (dataMin) => Math.floor((Math.min(0, dataMin) - 5) / 10) * 10,
-                      (dataMax) => Math.ceil((Math.max(0, dataMax) + 5) / 10) * 10
+                      (dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10,
+                      (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10
                     ]}
                     tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                   />
