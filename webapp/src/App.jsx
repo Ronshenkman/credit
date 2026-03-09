@@ -9,20 +9,42 @@ import './index.css';
 
 function App() {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastUploadDate, setLastUploadDate] = useState(null);
 
   const [category, setCategory] = useState("סה\"כ");
   const [basePeriod, setBasePeriod] = useState("change_14");
   const [maxDays, setMaxDays] = useState("100");
 
-  // Start with no data - wait for user to upload
+  // Load from local storage on init
+  useEffect(() => {
+    const savedData = localStorage.getItem('creditData');
+    const savedDate = localStorage.getItem('lastUploadDate');
+    if (savedData && savedDate) {
+      try {
+        setData(JSON.parse(savedData));
+        setLastUploadDate(savedDate);
+      } catch (err) {
+        console.error("Failed to load saved data", err);
+      }
+    }
+  }, []);
+
+  // Process file and save to local storage
   const handleFileLoaded = async (buffer) => {
     try {
       setLoading(true);
       setError(null);
       const parsedData = await processExcelData(buffer);
+      const now = new Date().toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
       setData(parsedData);
+      setLastUploadDate(now);
+
+      // Save it to localStorage
+      localStorage.setItem('creditData', JSON.stringify(parsedData));
+      localStorage.setItem('lastUploadDate', now);
+
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -78,6 +100,12 @@ function App() {
       </header>
 
       <FileUploader onFileLoaded={handleFileLoaded} onError={setError} />
+
+      {lastUploadDate && !loading && (
+        <div style={{ textAlign: 'center', marginBottom: '1rem', color: 'var(--text-muted)' }}>
+          <small>נתונים נטענו לאחרונה: {lastUploadDate}</small>
+        </div>
+      )}
 
       {loading && <div className="loading">מעבד נתונים...</div>}
 
