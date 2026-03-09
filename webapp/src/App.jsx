@@ -270,8 +270,8 @@ function App() {
                 <YAxis
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                  domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
-                  tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+                  domain={[(dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10, (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10]}
+                  tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                 />
                 <Tooltip
                   itemSorter={(item) => -item.value}
@@ -381,7 +381,7 @@ function App() {
                 <YAxis
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                  domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
+                  domain={[(dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10, (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10]}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                 />
                 <Tooltip
@@ -428,7 +428,7 @@ function App() {
                   <YAxis
                     stroke="var(--text-muted)"
                     tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
-                    domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
+                    domain={[(dataMin) => Math.floor(Math.min(0, dataMin) / 10) * 10, (dataMax) => Math.ceil(Math.max(0, dataMax) / 10) * 10]}
                     tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                   />
                   <Tooltip
