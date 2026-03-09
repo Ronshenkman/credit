@@ -9,8 +9,9 @@ const renderCustomBarLabel = ({ x, y, width, height, value }) => {
   const isNegative = value < 0;
   if (value === undefined || value === null) return null;
 
-  // To ensure the text is right below the bar without overlapping
-  // We use the chart element height. y is the top of the rectangle, height is its length extending downwards.
+  // y + height is the tip of a negative bar or the baseline of a positive bar.
+  // y is the top of a positive bar or the baseline of a negative bar.
+  // We want to be "outside" the active end.
   const yPos = isNegative ? y + height + 15 : y - 10;
 
   return (
@@ -20,8 +21,8 @@ const renderCustomBarLabel = ({ x, y, width, height, value }) => {
       fill="var(--text-muted)"
       textAnchor="middle"
       dominantBaseline={isNegative ? "hanging" : "auto"}
-      fontSize={14}
-      fontWeight="500"
+      fontSize={13}
+      fontWeight="600"
     >
       {`${value > 0 ? '+' : ''}${parseFloat(value).toFixed(0)}%`}
     </text>
