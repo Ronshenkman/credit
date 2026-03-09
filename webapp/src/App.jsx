@@ -415,11 +415,13 @@ function App() {
             <h3 style={{ textAlign: 'center', margin: '2rem 0 1.5rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
-            <div style={{ minWidth: '1200px', height: '500px' }}>
+            <div style={{ minWidth: '2000px', height: '500px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={comparisonChartData}
                   margin={{ top: 40, right: 30, left: 30, bottom: 80 }}
+                  barGap={8}
+                  barCategoryGap="30%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
                   <XAxis
