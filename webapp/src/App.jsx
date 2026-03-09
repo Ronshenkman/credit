@@ -373,7 +373,7 @@ function App() {
             <ResponsiveContainer width="100%" height="85%">
               <BarChart
                 data={barChartData}
-                margin={{ top: 30, right: 30, left: 30, bottom: 20 }}
+                margin={{ top: 30, right: 30, left: 30, bottom: 50 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
                 <XAxis
