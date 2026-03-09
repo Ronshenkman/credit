@@ -75,7 +75,7 @@ app.post('/api/data', async (req, res) => {
 // Serve static React app out of webapp/dist
 app.use(express.static(path.join(__dirname, '../webapp/dist')));
 
-app.get('/*', (req, res) => {
+app.get(/^(.*)$/, (req, res) => {
     res.sendFile(path.join(__dirname, '../webapp/dist/index.html'));
 });
 
