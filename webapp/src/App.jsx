@@ -1,8 +1,26 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
+  BarChart, Bar, Cell, LabelList
 } from 'recharts';
-import { Activity, Calendar, BarChart3, Clock } from 'lucide-react';
+import { Activity, Calendar, BarChart3, Clock, Target } from 'lucide-react';
+
+const renderCustomBarLabel = ({ x, y, width, height, value }) => {
+  const isNegative = value < 0;
+  // Make sure it doesn't crash if value is null
+  if (value === undefined || value === null) return null;
+  return (
+    <text
+      x={x + width / 2}
+      y={isNegative ? y + height + 20 : y - 10}
+      fill="var(--text-muted)"
+      textAnchor="middle"
+      fontSize={14}
+    >
+      {`${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+    </text>
+  );
+};
 import FileUploader from './components/FileUploader';
 import { processExcelData } from './utils/processData';
 import './index.css';
@@ -16,6 +34,7 @@ function App() {
   const [category, setCategory] = useState("סה\"כ");
   const [basePeriod, setBasePeriod] = useState("change_14");
   const [maxDays, setMaxDays] = useState("100");
+  const [avgDays, setAvgDays] = useState(6);
 
   // Load from backend API on init
   useEffect(() => {
@@ -102,6 +121,42 @@ function App() {
     return ticks;
   }, [maxDays]);
 
+  const barChartData = useMemo(() => {
+    if (!data) return [];
+
+    const result = [];
+    const ops = [
+      { name: "חרבות ברזל", color: "var(--line-iron)" },
+      { name: "עם כלביא", color: "var(--line-rising)" },
+      { name: "שאגת הארי", color: "var(--line-roaring)" }
+    ];
+
+    ops.forEach(op => {
+      if (data[op.name] && data[op.name][category]) {
+        const catData = data[op.name][category].data || [];
+        const validDays = catData.filter(item => item.day >= 0 && item.day < avgDays);
+
+        let sum = 0;
+        let count = 0;
+        validDays.forEach(item => {
+          if (item[basePeriod] !== undefined && item[basePeriod] !== null) {
+            sum += item[basePeriod];
+            count++;
+          }
+        });
+
+        const avg = count > 0 ? sum / count : 0;
+        result.push({
+          name: op.name,
+          value: avg,
+          color: op.color
+        });
+      }
+    });
+
+    return result;
+  }, [data, category, basePeriod, avgDays]);
+
   // if (loading) return <div className="app-container"><div className="loading">Loading data...</div></div>;
   if (error) return <div className="app-container"><div className="error">Error: {error}</div></div>;
 
@@ -143,7 +198,7 @@ function App() {
             </div>
 
             <div className="control-group">
-              <label><Clock size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> חלון זמן</label>
+              <label><Clock size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> חלון זמן (ציר X)</label>
               <select value={maxDays} onChange={e => setMaxDays(e.target.value)}>
                 <option value="30">30 ימים</option>
                 <option value="60">60 ימים</option>
@@ -151,6 +206,17 @@ function App() {
                 <option value="180">חצי שנה (180 ימים)</option>
                 <option value="max">מקסימום זמין</option>
               </select>
+            </div>
+
+            <div className="control-group">
+              <label><Target size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> ימים בממוצע (לגרף עמודות)</label>
+              <input
+                type="number"
+                value={avgDays}
+                onChange={e => setAvgDays(parseInt(e.target.value) || 1)}
+                min="1"
+                max="1000"
+              />
             </div>
           </div>
 
@@ -206,6 +272,41 @@ function App() {
                   activeDot={{ r: 6 }}
                 />
               </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="chart-container" dir="ltr" style={{ marginTop: '2rem', height: '400px' }}>
+            <h3 style={{ textAlign: 'center', margin: '0 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
+              ממוצע שינוי ב-{avgDays} הימים הראשונים (ביחס ל-{basePeriod === 'change_14' ? '14 ימים' : '28 ימים'} שלפני המלחמה)
+            </h3>
+            <ResponsiveContainer width="100%" height="85%">
+              <BarChart
+                data={barChartData}
+                margin={{ top: 30, right: 30, left: 30, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  stroke="var(--text-muted)"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 14 }}
+                />
+                <YAxis
+                  stroke="var(--text-muted)"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
+                />
+                <Tooltip
+                  formatter={(value) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, 'ממוצע']}
+                  cursor={{ fill: 'var(--panel-border)', opacity: 0.4 }}
+                />
+                <ReferenceLine y={0} stroke="var(--text-muted)" />
+                <Bar dataKey="value" maxBarSize={120}>
+                  {barChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                  <LabelList content={renderCustomBarLabel} />
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </>
