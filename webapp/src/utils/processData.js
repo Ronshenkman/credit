@@ -118,8 +118,12 @@ export async function processExcelData(buffer) {
             }];
 
             postOpData.forEach(row => {
-                // Compute delta in days accurately using rounded timestamps
-                const dayOffset = Math.round((row.Date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                // Compute delta in days accurately. 
+                // Math.floor difference ensures that same day = 0 diff.
+                // We add 1 so that the start date itself is Day 1.
+                const diffDays = Math.floor((row.Date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                const dayOffset = diffDays + 1;
+
                 const val = typeof row[col] === 'number' ? row[col] : null;
 
                 let pct_change_14 = null;

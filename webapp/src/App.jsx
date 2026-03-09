@@ -6,14 +6,16 @@ import {
 import { Activity, Calendar, BarChart3, Clock, Target } from 'lucide-react';
 
 const renderCustomBarLabel = ({ x, y, width, height, value }) => {
-  const isNegative = value < 0;
   if (value === undefined || value === null) return null;
+  const isNegative = value < 0;
 
-  // y + height is the tip of a negative bar or the baseline of a positive bar.
-  // y is the top of a positive bar or the baseline of a negative bar.
-  // We want to be "outside" the active end.
-  // Increase offset to be very clearly outside
-  const yPos = isNegative ? y + height + 25 : y - 15;
+  // In Recharts BarChart, for negative values:
+  // y = the 0 line (baseline)
+  // height = the length of the bar going DOWN
+  // So the bottom of the bar is y + height.
+  // For positive values, y is the top, so we want to be above or below.
+
+  const yPos = isNegative ? y + height + 20 : y + height + 20;
 
   return (
     <text
@@ -21,7 +23,7 @@ const renderCustomBarLabel = ({ x, y, width, height, value }) => {
       y={yPos}
       fill="var(--text-active)"
       textAnchor="middle"
-      dominantBaseline={isNegative ? "hanging" : "auto"}
+      dominantBaseline="hanging"
       fontSize={13}
       fontWeight="700"
     >
