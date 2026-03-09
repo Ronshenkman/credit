@@ -169,6 +169,34 @@ function App() {
     return result;
   }, [data, category, basePeriod, avgDays]);
 
+  const comparisonChartData = useMemo(() => {
+    if (!data) return [];
+
+    const ops = ["חרבות ברזל", "עם כלביא", "שאגת הארי"];
+    return categories.map(cat => {
+      const row = { category: cat };
+      ops.forEach(op => {
+        if (data[op] && data[op][cat]) {
+          const catData = data[op][cat].data || [];
+          const validDays = catData.filter(item => item.day > 0 && item.day <= avgDays);
+
+          let sum = 0;
+          let count = 0;
+          validDays.forEach(item => {
+            if (item[basePeriod] !== undefined && item[basePeriod] !== null) {
+              sum += item[basePeriod];
+              count++;
+            }
+          });
+          row[op] = count > 0 ? sum / count : 0;
+        } else {
+          row[op] = 0;
+        }
+      });
+      return row;
+    });
+  }, [data, categories, basePeriod, avgDays]);
+
   // if (loading) return <div className="app-container"><div className="loading">Loading data...</div></div>;
   if (error) return <div className="app-container"><div className="error">Error: {error}</div></div>;
 
@@ -375,6 +403,75 @@ function App() {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+          </div>
+
+          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: '600px', width: '100%', overflowX: 'auto' }}>
+            <h3 style={{ textAlign: 'center', margin: '2rem 0 1.5rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
+              השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
+            </h3>
+            <div style={{ minWidth: '1200px', height: '500px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={comparisonChartData}
+                  margin={{ top: 40, right: 30, left: 30, bottom: 80 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
+                  <XAxis
+                    dataKey="category"
+                    stroke="var(--text-muted)"
+                    tick={{ fill: 'var(--text-muted)', fontSize: 11, fontWeight: '500' }}
+                    interval={0}
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
+                  <YAxis
+                    stroke="var(--text-muted)"
+                    tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                    domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
+                    tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
+                  />
+                  <Tooltip
+                    itemSorter={(item) => -item.value}
+                    formatter={(value) => [
+                      <span dir="ltr">{`${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(2)}%`}</span>,
+                      undefined
+                    ]}
+                    cursor={{ fill: 'var(--panel-border)', opacity: 0.4 }}
+                  />
+                  <Legend verticalAlign="top" height={36} />
+                  <ReferenceLine y={0} stroke="var(--text-muted)" />
+
+                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]}>
+                    <LabelList
+                      dataKey="חרבות ברזל"
+                      position="bottom"
+                      offset={12}
+                      formatter={(v) => `${Math.round(v)}%`}
+                      style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
+                    />
+                  </Bar>
+                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]}>
+                    <LabelList
+                      dataKey="עם כלביא"
+                      position="bottom"
+                      offset={12}
+                      formatter={(v) => `${Math.round(v)}%`}
+                      style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
+                    />
+                  </Bar>
+                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]}>
+                    <LabelList
+                      dataKey="שאגת הארי"
+                      position="bottom"
+                      offset={12}
+                      formatter={(v) => `${Math.round(v)}%`}
+                      style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
+                    />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </>
       )}
