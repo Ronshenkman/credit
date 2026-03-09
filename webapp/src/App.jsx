@@ -246,7 +246,13 @@ function App() {
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
                 />
                 <Tooltip
-                  formatter={(value, name) => [`${value > 0 ? '+' : ''}${value.toFixed(2)}%`, name]}
+                  itemSorter={(item) => -item.value}
+                  formatter={(value, name) => [
+                    <span dir="ltr" style={{ display: 'inline-block' }}>
+                      {`${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(2)}%`}
+                    </span>,
+                    name
+                  ]}
                   labelFormatter={(label) => `יום ${label}`}
                   contentStyle={{
                     backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -257,17 +263,21 @@ function App() {
                     padding: '8px 12px'
                   }}
                   itemStyle={{
-                    direction: 'rtl',
                     fontSize: '14px',
                     fontWeight: '500',
-                    padding: '2px 0'
+                    padding: '2px 0',
+                    display: 'flex',
+                    flexDirection: 'row-reverse',
+                    justifyContent: 'flex-start',
+                    gap: '4px'
                   }}
                   labelStyle={{
                     fontWeight: '700',
                     color: 'var(--text-active)',
                     marginBottom: '8px',
                     borderBottom: '1px solid var(--panel-border)',
-                    paddingBottom: '4px'
+                    paddingBottom: '4px',
+                    textAlign: 'right'
                   }}
                 />
                 <Legend verticalAlign="top" height={36} wrapperStyle={{ paddingBottom: '20px' }} />
