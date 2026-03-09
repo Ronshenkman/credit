@@ -61,7 +61,7 @@ function App() {
       setLoading(false);
     } catch (err) {
       console.error(err);
-      setError("שגיאה בפענוח הקובץ. ודא שזהו קובץ האקסל התקין.");
+      setError(err.message || "שגיאה בלתי צפויה בתהליך ההעלאה.");
       setLoading(false);
     }
   };
