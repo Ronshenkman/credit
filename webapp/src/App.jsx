@@ -220,16 +220,7 @@ function App() {
               </select>
             </div>
 
-            <div className="control-group">
-              <label><Target size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> ימים בממוצע (לגרף עמודות)</label>
-              <input
-                type="number"
-                value={avgDays}
-                onChange={e => setAvgDays(parseInt(e.target.value) || 1)}
-                min="1"
-                max="1000"
-              />
-            </div>
+
           </div>
 
           <div className="chart-container" dir="ltr">
@@ -309,9 +300,34 @@ function App() {
             </ResponsiveContainer>
           </div>
 
-          <div className="chart-container" dir="ltr" style={{ marginTop: '2rem', height: '400px' }}>
-            <h3 style={{ textAlign: 'center', margin: '0 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
-              ממוצע שינוי ב-{avgDays} הימים הראשונים (מעודכן)
+          <div className="chart-container" dir="ltr" style={{ marginTop: '2.5rem', height: '450px', position: 'relative' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <div className="control-group" style={{
+                background: 'var(--panel-bg)',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                border: '1px solid var(--panel-border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <label style={{ margin: 0, whiteSpace: 'nowrap' }}>
+                  <Target size={18} style={{ display: 'inline', marginLeft: '6px', verticalAlign: 'middle' }} />
+                  ממוצע של כמה ימים?
+                </label>
+                <input
+                  type="number"
+                  value={avgDays}
+                  onChange={e => setAvgDays(parseInt(e.target.value) || 1)}
+                  min="1"
+                  max="100"
+                  style={{ width: '70px', textAlign: 'center' }}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ textAlign: 'center', margin: '0 0 1.5rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
+              ממוצע שינוי ב-{avgDays} הימים הראשונים
             </h3>
             <ResponsiveContainer width="100%" height="85%">
               <BarChart
