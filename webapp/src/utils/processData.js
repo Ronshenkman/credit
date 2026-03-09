@@ -57,11 +57,14 @@ export async function processExcelData(buffer) {
         return obj;
     }).filter(row => row['Date'] instanceof Date || typeof row['Date'] === 'number');
 
-    // Convert dates if they come as numbers (Excel serials)
+    // Convert dates and normalize to midnight
     dataList.forEach(row => {
         if (typeof row['Date'] === 'number') {
             // Excel date serial number to JS Date
             row['Date'] = new Date(Math.round((row['Date'] - 25569) * 86400 * 1000));
+        }
+        if (row['Date'] instanceof Date) {
+            row['Date'].setHours(0, 0, 0, 0);
         }
     });
 
@@ -72,6 +75,8 @@ export async function processExcelData(buffer) {
 
     Object.entries(DATES).forEach(([opName, startDateStr]) => {
         const startDate = new Date(startDateStr);
+        startDate.setHours(0, 0, 0, 0);
+
         result[opName] = {};
 
         // Process each category (all columns except Date)
@@ -113,9 +118,8 @@ export async function processExcelData(buffer) {
             }];
 
             postOpData.forEach(row => {
-                // Compute delta in days
-                const diffTime = Math.abs(row.Date - startDate);
-                const dayOffset = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                // Compute delta in days accurately using rounded timestamps
+                const dayOffset = Math.round((row.Date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
                 const val = typeof row[col] === 'number' ? row[col] : null;
 
                 let pct_change_14 = null;
