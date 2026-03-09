@@ -17,33 +17,46 @@ function App() {
   const [basePeriod, setBasePeriod] = useState("change_14");
   const [maxDays, setMaxDays] = useState("100");
 
-  // Load from local storage on init
+  // Load from backend API on init
   useEffect(() => {
-    const savedData = localStorage.getItem('creditData');
-    const savedDate = localStorage.getItem('lastUploadDate');
-    if (savedData && savedDate) {
-      try {
-        setData(JSON.parse(savedData));
-        setLastUploadDate(savedDate);
-      } catch (err) {
-        console.error("Failed to load saved data", err);
-      }
-    }
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data) {
+          setData(result.data);
+          const dateStr = new Date(result.lastUploadDate).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
+          setLastUploadDate(dateStr);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to load saved data from server", err);
+      });
   }, []);
 
-  // Process file and save to local storage
+  // Process file and save to backend
   const handleFileLoaded = async (buffer) => {
     try {
       setLoading(true);
       setError(null);
-      const parsedData = await processExcelData(buffer);
-      const now = new Date().toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
-      setData(parsedData);
-      setLastUploadDate(now);
 
-      // Save it to localStorage
-      localStorage.setItem('creditData', JSON.stringify(parsedData));
-      localStorage.setItem('lastUploadDate', now);
+      const parsedData = await processExcelData(buffer);
+
+      // Save it to backend
+      const response = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: parsedData })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setData(parsedData);
+        const dateStr = new Date(result.lastUploadDate).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' });
+        setLastUploadDate(dateStr);
+      } else {
+        throw new Error(result.error || "Server failed to save data");
+      }
 
       setLoading(false);
     } catch (err) {
