@@ -318,7 +318,13 @@ function App() {
                   {barChartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
-                  <LabelList content={renderCustomBarLabel} />
+                  <LabelList
+                    dataKey="value"
+                    position="bottom"
+                    offset={10}
+                    formatter={(value) => `${value > 0 ? '+' : ''}${parseFloat(value).toFixed(0)}%`}
+                    style={{ fill: 'var(--text-active)', fontSize: 13, fontWeight: 700 }}
+                  />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

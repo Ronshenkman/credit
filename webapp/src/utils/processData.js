@@ -74,8 +74,9 @@ export async function processExcelData(buffer) {
     const result = {};
 
     Object.entries(DATES).forEach(([opName, startDateStr]) => {
-        const startDate = new Date(startDateStr);
-        startDate.setHours(0, 0, 0, 0);
+        // Parse date as LOCAL time (not UTC) to avoid timezone offset issues
+        const [yr, mo, dy] = startDateStr.split('-').map(Number);
+        const startDate = new Date(yr, mo - 1, dy, 0, 0, 0, 0);
 
         result[opName] = {};
 
