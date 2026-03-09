@@ -12,12 +12,13 @@ const renderCustomBarLabel = ({ x, y, width, height, value }) => {
   return (
     <text
       x={x + width / 2}
-      y={isNegative ? y + height + 20 : y - 10}
+      y={isNegative ? y + height + 10 : y - 10}
       fill="var(--text-muted)"
       textAnchor="middle"
+      dominantBaseline={isNegative ? "hanging" : "auto"}
       fontSize={14}
     >
-      {`${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
+      {`${value > 0 ? '+' : ''}${parseFloat(value).toFixed(0)}%`}
     </text>
   );
 };
@@ -239,6 +240,7 @@ function App() {
                 <YAxis
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`}
                 />
                 <Tooltip
@@ -293,6 +295,7 @@ function App() {
                 <YAxis
                   stroke="var(--text-muted)"
                   tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  domain={[dataMin => Math.min(0, dataMin), dataMax => Math.max(0, dataMax)]}
                   tickFormatter={(value) => `${value > 0 ? '+' : ''}${value.toFixed(0)}%`}
                 />
                 <Tooltip
