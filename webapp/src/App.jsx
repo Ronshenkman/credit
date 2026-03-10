@@ -618,7 +618,7 @@ function App() {
                   <Legend verticalAlign="top" height={36} />
                   <ReferenceLine y={0} stroke="var(--text-muted)" />
 
-                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]} maxBarSize={25}>
                     <LabelList
                       dataKey="חרבות ברזל"
                       position="bottom"
@@ -627,7 +627,7 @@ function App() {
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]} maxBarSize={25}>
                     <LabelList
                       dataKey="עם כלביא"
                       position="bottom"
@@ -636,7 +636,7 @@ function App() {
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]} maxBarSize={25}>
                     <LabelList
                       dataKey="שאגת הארי"
                       position="bottom"
