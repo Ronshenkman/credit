@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine,
   BarChart, Bar, Cell, LabelList
 } from 'recharts';
-import { Activity, Calendar, BarChart3, Clock, Target } from 'lucide-react';
+import { Activity, Calendar, BarChart3, Clock, Target, Download, Image } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const renderCustomBarLabel = ({ x, y, width, height, value }) => {
   if (value === undefined || value === null) return null;
@@ -46,6 +47,62 @@ function App() {
   const [maxDays, setMaxDays] = useState("100");
   const [avgDays, setAvgDays] = useState(6);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const lineChartRef = useRef(null);
+  const barChartRef = useRef(null);
+  const compChartRef = useRef(null);
+
+  // Export as JPG
+  const exportAsJPG = useCallback(async (ref, filename) => {
+    if (!ref.current) return;
+    try {
+      const canvas = await html2canvas(ref.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true
+      });
+      const link = document.createElement('a');
+      link.download = `${filename}.jpg`;
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+  }, []);
+
+  // Export as CSV  
+  const exportAsCSV = useCallback((rows, headers, filename) => {
+    // BOM for Excel UTF-8 support
+    const BOM = '\uFEFF';
+    const csv = BOM + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${filename}.csv`;
+    link.click();
+  }, []);
+
+  // Export button component
+  const ExportButtons = ({ onCSV, onJPG }) => (
+    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '12px' }} dir="rtl">
+      <button onClick={onCSV} style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--panel-border)',
+        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '13px',
+        color: 'var(--text-muted)', transition: 'all 0.2s'
+      }}>
+        <Download size={14} /> CSV
+      </button>
+      <button onClick={onJPG} style={{
+        display: 'flex', alignItems: 'center', gap: '6px',
+        padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--panel-border)',
+        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '13px',
+        color: 'var(--text-muted)', transition: 'all 0.2s'
+      }}>
+        <Image size={14} /> JPG
+      </button>
+    </div>
+  );
 
   // Sync selected categories when data loads
   useEffect(() => {
@@ -263,7 +320,20 @@ function App() {
 
           </div>
 
-          <div className="chart-container" dir="ltr">
+          <ExportButtons
+            onCSV={() => {
+              const headers = ['יום', 'חרבות ברזל', 'עם כלביא', 'שאגת הארי'];
+              const rows = chartData.map(d => [
+                d.day,
+                d['חרבות ברזל'] ?? '',
+                d['עם כלביא'] ?? '',
+                d['שאגת הארי'] ?? ''
+              ]);
+              exportAsCSV(rows, headers, 'גרף_שינוי_יומי');
+            }}
+            onJPG={() => exportAsJPG(lineChartRef, 'גרף_שינוי_יומי')}
+          />
+          <div className="chart-container" dir="ltr" ref={lineChartRef}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={chartData}
@@ -353,7 +423,15 @@ function App() {
             </ResponsiveContainer>
           </div>
 
-          <div className="chart-container" dir="ltr" style={{ marginTop: '2.5rem', height: '450px', position: 'relative' }}>
+          <ExportButtons
+            onCSV={() => {
+              const headers = ['מבצע', 'ממוצע שינוי'];
+              const rows = barChartData.map(d => [d.name, (d.value ?? '').toString()]);
+              exportAsCSV(rows, headers, 'ממוצע_שינוי_לפי_מבצע');
+            }}
+            onJPG={() => exportAsJPG(barChartRef, 'ממוצע_שינוי_לפי_מבצע')}
+          />
+          <div className="chart-container" dir="ltr" style={{ marginTop: '2.5rem', height: '450px', position: 'relative' }} ref={barChartRef}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
               <div className="control-group" style={{
                 background: 'var(--panel-bg)',
@@ -423,7 +501,20 @@ function App() {
             </ResponsiveContainer>
           </div>
 
-          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: 'auto', minHeight: '600px', width: '100%', overflowX: 'auto' }}>
+          <ExportButtons
+            onCSV={() => {
+              const headers = ['ענף', 'חרבות ברזל', 'עם כלביא', 'שאגת הארי'];
+              const rows = comparisonChartData.map(d => [
+                d.category,
+                (d['חרבות ברזל'] ?? '').toString(),
+                (d['עם כלביא'] ?? '').toString(),
+                (d['שאגת הארי'] ?? '').toString()
+              ]);
+              exportAsCSV(rows, headers, 'השוואת_ענפים');
+            }}
+            onJPG={() => exportAsJPG(compChartRef, 'השוואת_ענפים')}
+          />
+          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: 'auto', minHeight: '600px', width: '100%', overflowX: 'auto' }} ref={compChartRef}>
             <h3 style={{ textAlign: 'center', margin: '2rem 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
