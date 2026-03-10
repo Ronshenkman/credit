@@ -84,23 +84,23 @@ function App() {
   }, []);
 
   // Export button component
-  const ExportButtons = ({ onCSV, onJPG }) => (
-    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '12px' }} dir="rtl">
+  const ExportButtons = ({ onCSV, onJPG, style }) => (
+    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '12px', ...style }} dir="rtl">
       <button onClick={onCSV} style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--panel-border)',
-        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '13px',
-        color: 'var(--text-muted)', transition: 'all 0.2s'
+        display: 'flex', alignItems: 'center', gap: '8px',
+        padding: '10px 20px', borderRadius: '10px', border: '1px solid var(--panel-border)',
+        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '15px',
+        color: 'var(--text-muted)', transition: 'all 0.2s', fontWeight: '500'
       }}>
-        <Download size={14} /> CSV
+        <Download size={18} /> ייצוא CSV
       </button>
       <button onClick={onJPG} style={{
-        display: 'flex', alignItems: 'center', gap: '6px',
-        padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--panel-border)',
-        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '13px',
-        color: 'var(--text-muted)', transition: 'all 0.2s'
+        display: 'flex', alignItems: 'center', gap: '8px',
+        padding: '10px 20px', borderRadius: '10px', border: '1px solid var(--panel-border)',
+        background: 'var(--panel-bg)', cursor: 'pointer', fontSize: '15px',
+        color: 'var(--text-muted)', transition: 'all 0.2s', fontWeight: '500'
       }}>
-        <Image size={14} /> JPG
+        <Image size={18} /> ייצוא JPG
       </button>
     </div>
   );
@@ -503,6 +503,7 @@ function App() {
           </div>
 
           <ExportButtons
+            style={{ marginTop: '3rem' }}
             onCSV={() => {
               const headers = ['ענף', 'חרבות ברזל', 'עם כלביא', 'שאגת הארי'];
               const rows = comparisonChartData.map(d => [
@@ -515,7 +516,7 @@ function App() {
             }}
             onJPG={() => exportAsJPG(compChartRef, 'השוואת_ענפים')}
           />
-          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: 'auto', minHeight: '600px', width: '100%', overflowX: 'auto' }} ref={compChartRef}>
+          <div className="chart-container" dir="ltr" style={{ marginTop: '1rem', height: 'auto', minHeight: '600px', width: '100%', overflowX: 'auto' }} ref={compChartRef}>
             <h3 style={{ textAlign: 'center', margin: '2rem 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
