@@ -45,6 +45,15 @@ function App() {
   const [basePeriod, setBasePeriod] = useState("change_14");
   const [maxDays, setMaxDays] = useState("100");
   const [avgDays, setAvgDays] = useState(6);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  // Sync selected categories when data loads
+  useEffect(() => {
+    if (data && data["חרבות ברזל"]) {
+      const cats = Object.keys(data["חרבות ברזל"]).filter(c => c !== 'סה"כ');
+      setSelectedCategories(cats);
+    }
+  }, [data]);
 
   // Load from backend API on init
   useEffect(() => {
@@ -173,7 +182,10 @@ function App() {
     if (!data) return [];
 
     const ops = ["חרבות ברזל", "עם כלביא", "שאגת הארי"];
-    return categories.map(cat => {
+    // Filter out 'סה"כ' and only include user-selected categories
+    const activeCats = categories.filter(cat => cat !== 'סה"כ' && selectedCategories.includes(cat));
+
+    return activeCats.map(cat => {
       const row = { category: cat };
       ops.forEach(op => {
         if (data[op] && data[op][cat]) {
@@ -195,7 +207,7 @@ function App() {
       });
       return row;
     });
-  }, [data, categories, basePeriod, avgDays]);
+  }, [data, categories, basePeriod, avgDays, selectedCategories]);
 
   // if (loading) return <div className="app-container"><div className="loading">Loading data...</div></div>;
   if (error) return <div className="app-container"><div className="error">Error: {error}</div></div>;
@@ -411,10 +423,49 @@ function App() {
             </ResponsiveContainer>
           </div>
 
-          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: '600px', width: '100%', overflowX: 'auto' }}>
-            <h3 style={{ textAlign: 'center', margin: '2rem 0 1.5rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
+          <div className="chart-container" dir="ltr" style={{ marginTop: '3rem', height: 'auto', minHeight: '600px', width: '100%', overflowX: 'auto' }}>
+            <h3 style={{ textAlign: 'center', margin: '2rem 0 1rem', color: 'var(--text-active)', fontWeight: '600' }} dir="rtl">
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
+
+            <div className="category-filter-panel" dir="rtl" style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '10px',
+              justifyContent: 'center',
+              margin: '0 auto 2rem',
+              maxWidth: '1200px',
+              padding: '0 20px'
+            }}>
+              {categories.filter(c => c !== 'סה"כ').map(cat => (
+                <label key={cat} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '13px',
+                  background: selectedCategories.includes(cat) ? 'rgba(37, 99, 235, 0.1)' : 'var(--panel-bg)',
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  border: `1px solid ${selectedCategories.includes(cat) ? 'var(--line-rising)' : 'var(--panel-border)'}`,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(cat)}
+                    onChange={() => {
+                      if (selectedCategories.includes(cat)) {
+                        setSelectedCategories(prev => prev.filter(c => c !== cat));
+                      } else {
+                        setSelectedCategories(prev => [...prev, cat]);
+                      }
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  {cat}
+                </label>
+              ))}
+            </div>
             <div style={{ minWidth: '1500px', height: '500px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
