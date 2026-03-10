@@ -580,13 +580,13 @@ function App() {
                 )}
               </div>
             </div>
-            <div style={{ minWidth: `${Math.max(400, selectedCategories.length * 150)}px`, height: '500px' }}>
+            <div style={{ minWidth: `${Math.max(400, selectedCategories.length * 120)}px`, height: '500px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={comparisonChartData}
                   margin={{ top: 40, right: 30, left: 30, bottom: 80 }}
-                  barGap={8}
-                  barCategoryGap="20%"
+                  barGap={4}
+                  barCategoryGap="15%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
                   <XAxis
@@ -618,7 +618,7 @@ function App() {
                   <Legend verticalAlign="top" height={36} />
                   <ReferenceLine y={0} stroke="var(--text-muted)" />
 
-                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]} maxBarSize={40}>
                     <LabelList
                       dataKey="חרבות ברזל"
                       position="bottom"
@@ -627,7 +627,7 @@ function App() {
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]} maxBarSize={40}>
                     <LabelList
                       dataKey="עם כלביא"
                       position="bottom"
@@ -636,7 +636,7 @@ function App() {
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]} maxBarSize={40}>
                     <LabelList
                       dataKey="שאגת הארי"
                       position="bottom"
