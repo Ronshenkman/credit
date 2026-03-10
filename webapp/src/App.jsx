@@ -47,6 +47,7 @@ function App() {
   const [maxDays, setMaxDays] = useState("100");
   const [avgDays, setAvgDays] = useState(6);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const lineChartRef = useRef(null);
   const barChartRef = useRef(null);
@@ -519,45 +520,66 @@ function App() {
               השוואת הפגיעה לפי ענפים - ממוצע {avgDays} ימים ראשונים
             </h3>
 
-            <div className="category-filter-panel" dir="rtl" style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '10px',
-              justifyContent: 'center',
-              margin: '0 auto 2rem',
-              maxWidth: '1200px',
-              padding: '0 20px'
-            }}>
-              {categories.filter(c => c !== 'סה"כ').map(cat => (
-                <label key={cat} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '13px',
-                  background: selectedCategories.includes(cat) ? 'rgba(37, 99, 235, 0.1)' : 'var(--panel-bg)',
-                  padding: '4px 10px',
-                  borderRadius: '20px',
-                  border: `1px solid ${selectedCategories.includes(cat) ? 'var(--line-rising)' : 'var(--panel-border)'}`,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(cat)}
-                    onChange={() => {
-                      if (selectedCategories.includes(cat)) {
-                        setSelectedCategories(prev => prev.filter(c => c !== cat));
-                      } else {
-                        setSelectedCategories(prev => [...prev, cat]);
-                      }
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  {cat}
-                </label>
-              ))}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }} dir="rtl">
+              <div style={{ position: 'relative', minWidth: '220px' }}>
+                <button
+                  onClick={() => setFilterOpen(!filterOpen)}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    width: '100%', padding: '8px 14px', borderRadius: '10px',
+                    border: '1px solid var(--panel-border)', background: 'var(--panel-bg)',
+                    cursor: 'pointer', fontSize: '14px', color: 'var(--text-active)',
+                    fontWeight: '500'
+                  }}
+                >
+                  <span>סינון ענפים ({selectedCategories.length})</span>
+                  <span style={{ transform: filterOpen ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>▼</span>
+                </button>
+                {filterOpen && (
+                  <div style={{
+                    position: 'absolute', top: '110%', right: 0, left: 0,
+                    background: '#fff', border: '1px solid var(--panel-border)',
+                    borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    zIndex: 100, maxHeight: '300px', overflowY: 'auto',
+                    padding: '8px 0'
+                  }}>
+                    <div style={{ padding: '4px 12px', borderBottom: '1px solid var(--panel-border)', marginBottom: '4px', display: 'flex', gap: '8px' }}>
+                      <button onClick={() => setSelectedCategories(categories.filter(c => c !== 'סה"כ'))}
+                        style={{ fontSize: '12px', color: 'var(--line-rising)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>בחר הכל</button>
+                      <span style={{ color: 'var(--panel-border)' }}>|</span>
+                      <button onClick={() => setSelectedCategories([])}
+                        style={{ fontSize: '12px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>נקה הכל</button>
+                    </div>
+                    {categories.filter(c => c !== 'סה"כ').map(cat => (
+                      <label key={cat} style={{
+                        display: 'flex', alignItems: 'center', gap: '8px',
+                        padding: '6px 14px', cursor: 'pointer', fontSize: '13px',
+                        transition: 'background 0.15s',
+                        background: selectedCategories.includes(cat) ? 'rgba(37, 99, 235, 0.05)' : 'transparent'
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                        onMouseLeave={e => e.currentTarget.style.background = selectedCategories.includes(cat) ? 'rgba(37, 99, 235, 0.05)' : 'transparent'}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={() => {
+                            if (selectedCategories.includes(cat)) {
+                              setSelectedCategories(prev => prev.filter(c => c !== cat));
+                            } else {
+                              setSelectedCategories(prev => [...prev, cat]);
+                            }
+                          }}
+                          style={{ cursor: 'pointer', accentColor: 'var(--line-rising)' }}
+                        />
+                        {cat}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <div style={{ minWidth: '1500px', height: '500px' }}>
+            <div style={{ minWidth: `${Math.max(400, selectedCategories.length * 150)}px`, height: '500px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={comparisonChartData}
