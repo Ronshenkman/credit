@@ -579,8 +579,8 @@ function App() {
                 <BarChart
                   data={comparisonChartData}
                   margin={{ top: 40, right: 30, left: 30, bottom: 80 }}
-                  barGap={16}
-                  barCategoryGap="30%"
+                  barGap={8}
+                  barCategoryGap="40%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--panel-border)" vertical={false} />
                   <XAxis
@@ -612,29 +612,29 @@ function App() {
                   <Legend verticalAlign="top" height={36} />
                   <ReferenceLine y={0} stroke="var(--text-muted)" />
 
-                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]} barSize={16}>
+                  <Bar dataKey="חרבות ברזל" fill="var(--line-iron)" radius={[4, 4, 0, 0]} barSize={12}>
                     <LabelList
                       dataKey="חרבות ברזל"
                       position="bottom"
-                      offset={14}
+                      offset={12}
                       formatter={(v) => `${Math.round(v)}%`}
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]} barSize={16}>
+                  <Bar dataKey="עם כלביא" fill="var(--line-rising)" radius={[4, 4, 0, 0]} barSize={12}>
                     <LabelList
                       dataKey="עם כלביא"
                       position="bottom"
-                      offset={14}
+                      offset={12}
                       formatter={(v) => `${Math.round(v)}%`}
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
                   </Bar>
-                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]} barSize={16}>
+                  <Bar dataKey="שאגת הארי" fill="var(--line-roaring)" radius={[4, 4, 0, 0]} barSize={12}>
                     <LabelList
                       dataKey="שאגת הארי"
                       position="bottom"
-                      offset={14}
+                      offset={12}
                       formatter={(v) => `${Math.round(v)}%`}
                       style={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 600 }}
                     />
