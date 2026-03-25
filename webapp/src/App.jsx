@@ -43,7 +43,7 @@ function App() {
   const [lastUploadDate, setLastUploadDate] = useState(null);
 
   const [category, setCategory] = useState("סה\"כ");
-  const [basePeriod, setBasePeriod] = useState("change_14");
+  const [basePeriod, setBasePeriod] = useState("change");
   const [maxDays, setMaxDays] = useState("100");
   const [avgDays, setAvgDays] = useState(6);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -299,13 +299,7 @@ function App() {
               </select>
             </div>
 
-            <div className="control-group">
-              <label><Calendar size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> תקופת בסיס</label>
-              <select value={basePeriod} onChange={e => setBasePeriod(e.target.value)}>
-                <option value="change_14">ממוצע 14 ימים</option>
-                <option value="change_28">ממוצע 28 ימים</option>
-              </select>
-            </div>
+
 
             <div className="control-group">
               <label><Clock size={16} style={{ display: 'inline', marginLeft: '4px', verticalAlign: 'text-bottom' }} /> חלון זמן (ציר X)</label>

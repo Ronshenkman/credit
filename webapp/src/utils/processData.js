@@ -85,25 +85,20 @@ export async function processExcelData(buffer) {
         // Process each category (all columns except Date)
         COLUMN_NAMES_IN_ORDER.slice(1).forEach(col => {
             // Calculate Baselines
-            const baseEnd = new Date(startDate);
-            baseEnd.setDate(baseEnd.getDate() - 1);
+            const currentMonthStart = new Date(startDate);
+            currentMonthStart.setDate(1);
 
-            const base14Start = new Date(startDate);
-            base14Start.setDate(base14Start.getDate() - 14);
+            const prevMonthEnd = new Date(currentMonthStart);
+            prevMonthEnd.setDate(0); // 0th day of current month gets last day of previous month
 
-            const base28Start = new Date(startDate);
-            base28Start.setDate(base28Start.getDate() - 28);
+            const prevMonthStart = new Date(prevMonthEnd);
+            prevMonthStart.setDate(1);
 
-            const base14Vals = dataList
-                .filter(r => r.Date >= base14Start && r.Date <= baseEnd && typeof r[col] === 'number')
+            const baseVals = dataList
+                .filter(r => r.Date >= prevMonthStart && r.Date <= prevMonthEnd && typeof r[col] === 'number')
                 .map(r => r[col]);
 
-            const base28Vals = dataList
-                .filter(r => r.Date >= base28Start && r.Date <= baseEnd && typeof r[col] === 'number')
-                .map(r => r[col]);
-
-            const base14Avg = getAverage(base14Vals);
-            const base28Avg = getAverage(base28Vals);
+            const baseAvg = getAverage(baseVals);
 
             // Get data from startDate onwards
             const postOpData = dataList.filter(r => r.Date >= startDate);
@@ -116,8 +111,7 @@ export async function processExcelData(buffer) {
                 day: 0,
                 date: dayZeroDate.toISOString().split('T')[0],
                 value: null,
-                change_14: 0.0,
-                change_28: 0.0
+                change: 0.0
             }];
 
             postOpData.forEach(row => {
@@ -129,26 +123,22 @@ export async function processExcelData(buffer) {
 
                 const val = typeof row[col] === 'number' ? row[col] : null;
 
-                let pct_change_14 = null;
-                let pct_change_28 = null;
+                let pct_change = null;
 
                 if (val !== null) {
-                    if (base14Avg) pct_change_14 = ((val / base14Avg) - 1) * 100;
-                    if (base28Avg) pct_change_28 = ((val / base28Avg) - 1) * 100;
+                    if (baseAvg) pct_change = ((val / baseAvg) - 1) * 100;
                 }
 
                 daysData.push({
                     day: dayOffset,
                     date: row.Date.toISOString().split('T')[0],
                     value: val,
-                    change_14: pct_change_14,
-                    change_28: pct_change_28
+                    change: pct_change
                 });
             });
 
             result[opName][col] = {
-                base_14_avg: base14Avg,
-                base_28_avg: base28Avg,
+                base_avg: baseAvg,
                 data: daysData
             };
         });
